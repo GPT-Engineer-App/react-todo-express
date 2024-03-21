@@ -1,0 +1,69 @@
+// src/pages/Index.jsx
+import React, { useState } from "react";
+import { Box, Heading, Input, Button, List, ListItem, ListIcon, VStack, HStack, IconButton, useToast } from "@chakra-ui/react";
+import { FaTrashAlt, FaRegCheckCircle, FaRegCircle } from "react-icons/fa";
+
+const Index = () => {
+  const [todos, setTodos] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const toast = useToast();
+
+  const handleAddTodo = () => {
+    if (inputValue.trim() !== "") {
+      setTodos([...todos, { id: Date.now(), text: inputValue, isCompleted: false }]);
+      setInputValue("");
+    } else {
+      toast({
+        title: "Empty input",
+        description: "Can't add an empty todo.",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleToggleComplete = (todoId) => {
+    setTodos(todos.map((todo) => (todo.id === todoId ? { ...todo, isCompleted: !todo.isCompleted } : todo)));
+  };
+
+  const handleDeleteTodo = (todoId) => {
+    setTodos(todos.filter((todo) => todo.id !== todoId));
+  };
+
+  return (
+    <VStack p={8}>
+      <Heading mb="8">To-Do List</Heading>
+      <HStack>
+        <Input
+          placeholder="Add a new task..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              handleAddTodo();
+            }
+          }}
+        />
+        <Button onClick={handleAddTodo} colorScheme="blue" px="8">
+          Add
+        </Button>
+      </HStack>
+      <Box w="100%">
+        <List spacing={3}>
+          {todos.map((todo) => (
+            <ListItem key={todo.id} d="flex" justifyContent="space-between" alignItems="center">
+              <HStack spacing={4}>
+                <ListIcon as={todo.isCompleted ? FaRegCheckCircle : FaRegCircle} color={todo.isCompleted ? "green.500" : "gray.500"} onClick={() => handleToggleComplete(todo.id)} cursor="pointer" />
+                <Box as={todo.isCompleted ? "s" : "span"}>{todo.text}</Box>
+              </HStack>
+              <IconButton aria-label="Delete todo" icon={<FaTrashAlt />} onClick={() => handleDeleteTodo(todo.id)} colorScheme="red" size="sm" />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </VStack>
+  );
+};
+
+export default Index;
